@@ -1,0 +1,75 @@
+/* Center the entire login container */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; /* Full viewport height */
+  text-align: center; /* Center text */
+  background-color: #f8f9fa; /* Light background color */
+}
+
+.login-box {
+  border: 2px solid #ccc; /* Border around the box */
+  border-radius: 8px; /* Rounded corners */
+  padding: 20px; /* Padding inside the border */
+  background-color: #fff; /* Background color inside the border */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for better appearance */
+}
+
+.login-box h2 {
+  margin-bottom: 1rem;
+}
+
+.login-box form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 400px; /* Max width for form */
+}
+
+.login-box input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.login-box button {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid transparent; /* Add border with transparent color initially */
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-bottom: 10px; /* Space between buttons */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Optional: Add shadow for better appearance */
+  transition: border-color 0.3s, background-color 0.3s; /* Smooth transition for border and background color */
+}
+
+/* Style for the login button */
+.login-box .login-button {
+  background-color: #007bff; /* Primary color */
+  color: #fff;
+  border-color: #0056b3; /* Border color for the login button */
+}
+
+/* Style for the signup button */
+.login-box .signup-button {
+  background-color: #6c757d; /* Secondary color */
+  color: #fff;
+  border-color: #5a6268; /* Border color for the signup button */
+}
+
+/* Optional: Add hover effects */
+.login-box button:hover {
+  background-color: #0056b3; /* Darker shade for hover effect */
+  border-color: #003d7a; /* Darker border for hover effect */
+}
+
+.login-box button:hover.signup-button {
+  background-color: #5a6268; /* Darker shade for hover effect */
+  border-color: #434c54; /* Darker border for hover effect */
+}

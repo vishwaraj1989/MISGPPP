@@ -112,7 +112,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://76.76.21.9:5000/api/authRoutes/login', formData);
+      const response = await axios.post('https://76.76.21.9:5000/api/authRoutes/login', formData);
       setMessage(response.data.message);
       localStorage.setItem('token', response.data.token);
       navigate('/Dashboard');

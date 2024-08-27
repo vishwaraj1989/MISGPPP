@@ -108,19 +108,14 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('https://misgppp.vercel.app/api/authRoutes/login', formData);
+      // Replace the URL with your deployed server's IPv4 address
+      const response = await axios.post('http://123.456.78.90/api/authRoutes/login', formData);
       setMessage(response.data.message);
       localStorage.setItem('token', response.data.token);
       navigate('/Dashboard');
     } catch (error) {
-      if (!error.response) {
-        // Network error
-        setMessage('Network error. Please try again later.');
-      } else {
-        // Server error
-        console.error('Login error:', error); // Log the complete error
-        setMessage(error.response?.data?.message || 'Something went wrong!');
-      }
+      console.error('Login error:', error);
+      setMessage(error.response?.data?.message || 'Something went wrong!');
     }
   };
 

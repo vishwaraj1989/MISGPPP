@@ -76,7 +76,6 @@
 
 // export default Login;
 
-
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -109,14 +108,19 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Update the URL with your deployed Express server URL
       const response = await axios.post('https://misgppp.vercel.app/api/authRoutes/login', formData);
       setMessage(response.data.message);
       localStorage.setItem('token', response.data.token);
       navigate('/Dashboard');
     } catch (error) {
-      console.error('Login error:', error);
-      setMessage(error.response?.data?.message || 'Something went wrong!');
+      if (!error.response) {
+        // Network error
+        setMessage('Network error. Please try again later.');
+      } else {
+        // Server error
+        console.error('Login error:', error); // Log the complete error
+        setMessage(error.response?.data?.message || 'Something went wrong!');
+      }
     }
   };
 

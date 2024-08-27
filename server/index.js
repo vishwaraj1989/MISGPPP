@@ -3,55 +3,68 @@
 // const dotenv = require('dotenv');
 // const connectDB = require('./connectDB');
 // const router = require('./api/formRoutes');
+// const authRoutes = require('./api/authRoutes');
 
 // dotenv.config();
 
 // const app = express();
 
-// // Middleware to parse JSON requests
-// app.use(express.json());
+// app.use(express.json()); // Middleware to parse JSON requests
+// app.use(cors()); // Enable CORS
 
-// // Enable CORS for all routes
-// app.use(cors());
-
-// // Connect to MongoDB
 // connectDB();
 
-// // Use registration routes
+// // // Use registration routes
 // app.use('/api/formRoutes', router);
+
+// app.use('/api/authRoutes', authRoutes);
 
 // const PORT = process.env.PORT || 5000;
 
 // app.listen(PORT, () => {
 //   console.log(`Server running on port ${PORT}`);
 // });
+// index.js
 
 
 
 const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const connectDB = require('./connectDB');
+const bodyParser = require('body-parser');
+const connectDB = require('./connectDB');  // Imports the connectDB function
+const dotenv = require('dotenv');  // Imports dotenv to load environment variables
+const cors = require('cors');  // Imports CORS middleware
+const morgan = require('morgan');  // Imports morgan for request logging
 const router = require('./api/formRoutes');
 const authRoutes = require('./api/authRoutes');
 
-dotenv.config();
+dotenv.config();  // Loads environment variables from .env file
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
-app.use(express.json()); // Middleware to parse JSON requests
-app.use(cors()); // Enable CORS
+// Middleware
+app.use(bodyParser.json());  // Parses JSON requests
+app.use(cors());  // Enables CORS for all origins
+app.use(morgan('dev'));  // Logs HTTP requests
 
-connectDB();
-
-// // Use registration routes
+// API route for form submissions
+// Use registration routes
 app.use('/api/formRoutes', router);
 
 app.use('/api/authRoutes', authRoutes);
 
-const PORT = process.env.PORT || 5000;
+// Connect to MongoDB
+connectDB()
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
+});
+
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-

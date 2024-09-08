@@ -83,7 +83,6 @@
 // export default Login;
 
 
-
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -118,7 +117,7 @@ const Login = () => {
     e.preventDefault();
     try {
       // Replace the URL with your deployed server's IPv4 address
-      const response = await axios.post('https://misgppp-vishwarajs-projects.vercel.app/api/authRoutes/login', formData);
+      const response = await axios.post('http://localhost:5000/api/authRoutes/login', formData);
       setMessage(response.data.message);
       localStorage.setItem('token', response.data.token);
       navigate('/Dashboard');
@@ -167,3 +166,4 @@ const Login = () => {
 };
 
 export default Login;
+

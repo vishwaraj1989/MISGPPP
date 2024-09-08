@@ -117,7 +117,7 @@ const Login = () => {
     e.preventDefault();
     try {
       // Replace the URL with your deployed server's IPv4 address
-      const response = await axios.post('http://localhost:5000/api/authRoutes/login', formData);
+      const response = await axios.post('https://misgppp.vercel.app/api/authRoutes/login', formData);
       setMessage(response.data.message);
       localStorage.setItem('token', response.data.token);
       navigate('/Dashboard');

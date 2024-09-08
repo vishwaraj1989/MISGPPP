@@ -1,8 +1,5 @@
-
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
 import {
   Box,
   TextField,
@@ -24,7 +21,6 @@ const RegisterForm = () => {
   const [formData, setFormData] = useState({
     srNumber: '',
     category: '',
-    srStatus: 'OPEN',
     srType: '',
     nameOfApplicant: '',
     address: '',
@@ -54,16 +50,44 @@ const RegisterForm = () => {
     trAmount: '',
     trMrNumber: '',
     trDate: '',
+    dateOfRelease: '',
     consumerNumber: '',
-    remarks: '',
+    srStatus: 'OPEN',
+    remark: '',
     h3Number: '',
-    h3OutwardNumber:'',
-    h3Date:'',
-    firstUnit:'',
+    h3OutwardNumber: '',
+    h3Date: '',
+    firstUnit: '',
+    userId: '' // Add userId to form data
   });
 
   const [loading, setLoading] = useState(false);
-
+  
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+  console.log ("token", token);
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/formRoutes/user', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setFormData((prevData) => ({
+          ...prevData,
+          userId: response.data.userId, // Make sure this matches your backend response
+          
+        }));
+      } catch (error) {
+        console.error('Error fetching user data:', error.response ? error.response.data : error.message);
+      }
+    };
+  
+    fetchUserData();
+  }, []);
+  
+  
+  
   // Define options for the select fields
   const tariffOptions = {
     default: [{ value: 'OTHER', label: 'OTHER' }],
@@ -112,20 +136,39 @@ const RegisterForm = () => {
     { value: '236', label: '236' },
     { value: '0', label: '0' },
   ];
+  console.log('Form Data:', formData);
+  console.log('userId', formData.userId);
 
-  // Handle form submission
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
       return;
     }
   
+    if (!formData.userId) {
+      toast.error('UserId is required. Login Again', {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+        style: {
+          backgroundColor: '#ff4444',
+          color: '#fff'
+        }
+      });
+      return;
+    }
+  
     setLoading(true);
   
     try {
-      // Check if SR Number exists
       const srNumberExists = await checkSrNumberExists(formData.srNumber);
-      
+  
       if (srNumberExists) {
         toast.error('SR Number already exists. Please enter a different SR Number.', {
           position: "top-center",
@@ -145,7 +188,6 @@ const RegisterForm = () => {
         return;
       }
   
-      // Submit form data to server
       const response = await axios.post('http://localhost:5000/api/formRoutes', formData, {
         headers: {
           'Content-Type': 'application/json',
@@ -157,7 +199,6 @@ const RegisterForm = () => {
         setFormData({
           srNumber: '',
           category: '',
-          srStatus: 'OPEN',
           srType: '',
           nameOfApplicant: '',
           address: '',
@@ -187,12 +228,15 @@ const RegisterForm = () => {
           trAmount: '',
           trMrNumber: '',
           trDate: '',
+          dateOfRelease:'',
           consumerNumber: '',
-          remarks: '',
+          srStatus: 'OPEN',
+          remark: '',
           h3Number: '',
-          h3OutwardNumber:'',
-          h3Date:'',
-          firstUnit:'',
+          h3OutwardNumber: '',
+          h3Date: '',
+          firstUnit: '',
+          userId: '' // Clear userId as well
         });
       } else {
         alert('Failed to submit form. Please try again later.');
@@ -204,7 +248,7 @@ const RegisterForm = () => {
       setLoading(false);
     }
   };
-
+  
   // Handle Enter key press to submit the form
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
@@ -213,18 +257,16 @@ const RegisterForm = () => {
     }
   };
 
-  
-// Update form data on input change
-const handleChange = (e) => {
-  const { name, value } = e.target;
-  setFormData((prevData) => ({
-    ...prevData,
-    [name]: name === 'nameOfApplicant' || name === 'address' || name === 'rcMrNo' || name === 'ggrc' || name === 'remarks' || name === 'fqMrNo' || name === 'trMrNumber'
-      ? value.toUpperCase()
-      : value,
-  }));
-};
-
+  // Update form data on input change
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: name === 'nameOfApplicant' || name === 'address' || name === 'rcMrNo' || name === 'ggrc' || name === 'remarks' || name === 'fqMrNo' || name === 'trMrNumber'
+        ? value.toUpperCase()
+        : value,
+    }));
+  };
 
   // Validate form fields
   const validateForm = () => {
@@ -270,16 +312,12 @@ const handleChange = (e) => {
     }
   };
 
-
 return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Navbar />
       <Box sx={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
     <Typography>
      In  A Type Survey FQ Amount Total is Fixed Charge
-    </Typography>
-    <Typography>
-      After Enter Consumer Number Close SR Status 
     </Typography>
   </Box>
 
@@ -470,7 +508,6 @@ return (
                   onKeyDown={handleKeyPress}
                   InputLabelProps={{ style: { color: 'green' } }}
                   inputProps={{ style: { textTransform: 'uppercase' } }}
-
                 />
               </Grid>
  <Grid item xs={12} sm={4} md={2}>
@@ -504,6 +541,8 @@ return (
                     fullWidth
                     size="small"
                     onKeyDown={handleKeyPress}
+                    inputProps={{ style: { textTransform: 'uppercase' } }}
+
                   />
                 </Grid>
               )}
@@ -783,42 +822,10 @@ return (
               </Grid>
               <Grid item xs={12} sm={4} md={2}>
                 <TextField
-                  label="Consumer Number"
-                  name="consumerNumber"
-                  type="number"
-                  value={formData.consumerNumber}
-                  onChange={handleChange}
-                  fullWidth
-                  size="small"
-                  onKeyDown={handleKeyPress}
-                  InputLabelProps={{ style: { color: 'green' } }}
-
-                />
-              </Grid>
-               <Grid item xs={12} sm={4} md={2}>
-                 <FormControl fullWidth size="small">
-                 <InputLabel id="srStatus-label" style={{ color: 'green' }}>SR Status</InputLabel>
-                 <Select
-                    labelId="srStatus-label"
-                     name="srStatus"
-                     value={formData.srStatus}
-                     onChange={handleChange}
-                     label="SR Status"
-                    required
-                    onKeyDown={handleKeyPress}
-                   >
-                    <MenuItem value='OPEN'>OPEN</MenuItem>
-                    <MenuItem value='CLOSED'>CLOSED</MenuItem>
-                  </Select>
-                  </FormControl>
-                </Grid> 
-
-              <Grid item xs={12} sm={4} md={2}>
-                <TextField
-                  label="Remarks"
-                  name="remarks"
+                  label="Remark"
+                  name="remark"
                   type="text"
-                  value={formData.remarks}
+                  value={formData.remark}
                   onChange={handleChange}
                   fullWidth
                   size="small"
@@ -845,7 +852,7 @@ return (
       </Box>
       <ToastContainer
               position="top-center"
-              autoClose={5000}
+              autoClose={1000}
               hideProgressBar={false}
               newestOnTop={false}
               closeOnClick
@@ -860,6 +867,3 @@ return (
 };
 
 export default RegisterForm;
-
-
-

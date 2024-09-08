@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
-import { toast, ToastContainer } from 'react-toastify'; // Import toast and ToastContainer
-import 'react-toastify/dist/ReactToastify.css'; // Import toast CSS
-import './Signup.css'; // Optional: Import a separate CSS file for styling
+import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import './Signup.css';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+  const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -22,16 +23,19 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true); // Start loading
     try {
       const response = await axios.post('http://localhost:5000/api/authRoutes/signup', formData);
-      toast.success(response.data.message); // Show success toast
-      setFormData({ email: '', password: '' }); // Clear form fields
+      toast.success(response.data.message);
+      setFormData({ email: '', password: '' });
       setTimeout(() => {
-        navigate('/login'); // Redirect to login page after successful signup
-      }, 2000); // Redirect after 2 seconds to allow time for toast to be visible
+        navigate('/');
+      }, 2000);
     } catch (error) {
       console.log('Error response:', error.response);
-      toast.error(error.response?.data?.message || 'Something went wrong!'); // Show error toast
+      toast.error(error.response?.data?.message || 'Something went wrong!');
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -55,9 +59,11 @@ const Signup = () => {
           onChange={handleChange}
           required
         />
-        <button type="submit">Signup</button>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Signing up...' : 'Signup'}
+        </button>
       </form>
-      <ToastContainer /> {/* Add ToastContainer to display toasts */}
+      <ToastContainer />
     </div>
   );
 };

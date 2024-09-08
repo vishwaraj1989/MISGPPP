@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
@@ -10,7 +8,6 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Toolbar from '@mui/material/Toolbar';
@@ -160,37 +157,59 @@ function formatDate(dateString) {
 function EnhancedTable() {
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('rcDate');
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
-    axios.get('/api/formRoutes') // Adjust the API endpoint as needed
-      .then(response => {
-        const filteredRows = response.data.filter(row => row.srStatus === "OPEN" && (row.category === "General Lighting Purpose" || row.category === "Street Light") && row.srType === "Change of Load for LT Reduction" && (row.fqMrDate === null || row.fqMrDate === undefined || row.fqMrDate.trim() === ""));
+    const token = localStorage.getItem('token');
+
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/formRoutes/user', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data.userId; // Return userId for chaining
+      } catch (error) {
+        console.error('Error fetching user data:', error.response ? error.response.data : error.message);
+        return null;
+      }
+    };
+
+    const fetchData = async (userId) => {
+      try {
+        if (!userId) return; // If no userId, exit early
+
+        const response = await axios.get(`http://localhost:5000/api/formRoutes/${userId}`);
+        
+        // Filter rows according to the conditions
+        const filteredRows = response.data.filter(row => 
+          row.srStatus === "OPEN" &&
+          (row.category === "General Lighting Purpose" || row.category === "Street Light") &&
+          row.srType === "Change of Load for LT Reduction" &&
+          (!row.fqMrDate || row.fqMrDate.trim() === "")
+        );
         setRows(filteredRows);
-      })
-      .catch(error => {
+      } catch (error) {
         console.error("There was an error fetching the data!", error);
-      });
+      }
+    };
+
+    // Chain the fetches
+    fetchUserData().then(userId => {
+      if (userId) {
+        fetchData(userId);
+      }
+    });
   }, []);
+
+
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
-
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   const getFilteredRows = () => {
     return rows.map(row => {
@@ -243,7 +262,6 @@ function EnhancedTable() {
                   const rcMrNoComparison = a.rcMrNo.localeCompare(b.rcMrNo);
                   return order === 'asc' ? rcMrNoComparison : -rcMrNoComparison;
                 })
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => (
                   <TableRow
                     hover
@@ -261,15 +279,7 @@ function EnhancedTable() {
                     ))}
                   </TableRow>
                 ))}
-              {emptyRows > 0 && (
-                <TableRow
-                  style={{
-                    height: 53 * emptyRows,
-                  }}
-                >
-                  <TableCell colSpan={headCells.length} />
-                </TableRow>
-              )}
+             
             </TableBody>
           </Table>
         </TableContainer>
@@ -280,15 +290,7 @@ function EnhancedTable() {
             </IconButton>
           </Tooltip>
         </Box>
-        <TablePagination
-          rowsPerPageOptions={[10, 20, 30]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
+        
       </Paper>
     </Box>
   );

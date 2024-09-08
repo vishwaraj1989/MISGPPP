@@ -1,16 +1,38 @@
-
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import Navbar from '../components/Navbar';
 import Sidenav from '../components/Sidenav';
 import { Box, Card, CardContent, Typography, Button, TextField } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
 
 const More = () => {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
+  const [userId, setUserId] = useState(null);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const fetchUserData = async () => {
+        try {
+          const response = await axios.get('http://localhost:5000/api/formRoutes/user', {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          setUserId(response.data.userId); // Store the logged-in user's ID
+        } catch (error) {
+          console.error('Error fetching user data:', error.response ? error.response.data : error.message);
+        }
+      };
+      fetchUserData();
+    }
+  }, []);
 
   const generateExcel = async () => {
     // Check if both dates are selected
@@ -20,31 +42,74 @@ const More = () => {
     }
 
     try {
-      // Fetch data with date range filter
+      // Fetch data with date range filter and userId
       const query = new URLSearchParams({
         fromDate,
-        toDate
+        toDate,
+        userId // Pass the userId as a query parameter
       }).toString();
-      const response = await fetch(`http://localhost:5000/api/formRoutes?${query}`);
-      if (!response.ok) {
+      const response = await axios.get(`http://localhost:5000/api/formRoutes?${query}`);
+      if (response.status === 200) {
+        const data = response.data;
+
+        if (data.length === 0) {
+          throw new Error('No data available');
+        }
+
+        // Convert JSON to Excel
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+        XLSX.writeFile(wb, 'masterFile.xlsx');
+
+        toast.success('Excel file generated successfully');
+      } else {
         throw new Error('Failed to fetch data');
       }
-      const data = await response.json();
-
-      if (data.length === 0) {
-        throw new Error('No data available');
-      }
-
-      // Convert JSON to Excel
-      const ws = XLSX.utils.json_to_sheet(data);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-      XLSX.writeFile(wb, 'masterFile.xlsx');
-
-      toast.success('Excel file generated successfully');
     } catch (error) {
       console.error('Error generating Excel file:', error.message);
       toast.error('Failed to generate Excel file');
+    }
+  };
+
+  const changePassword = async () => {
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error('New password and confirm password do not match');
+      return;
+    }
+
+    try {
+      console.log("UserId = ", userId);
+      const response = await axios.post(
+        'http://localhost:5000/api/authRoutes/change-password',
+        {
+          userId,
+          oldPassword,
+          newPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        toast.success('Password changed successfully');
+        setOldPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        throw new Error('Failed to change password');
+      }
+    } catch (error) {
+      console.error('Error changing password:', error.message);
+      toast.error('Failed to change password');
     }
   };
 
@@ -57,13 +122,13 @@ const More = () => {
         sx={{
           flexGrow: 1,
           marginLeft: '200px',
-          paddingTop: '60px', // Increased top padding
-          paddingLeft: '0px', // Removed left padding
-          paddingRight: '20px', // Maintain the existing padding
+          paddingTop: '60px',
+          paddingLeft: '0px',
+          paddingRight: '20px',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: 2, // Add space between cards
+          gap: 2,
         }}
       >
         {/* Date Selectors Card */}
@@ -100,15 +165,40 @@ const More = () => {
           </CardContent>
         </Card>
 
-        {/* Second Card */}
+        {/* Change Password Card */}
         <Card sx={{ maxWidth: 600, width: '100%', bgcolor: '#fce4ec' }}>
           <CardContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Typography variant="h5" component="div" sx={{ mb: 2 }}>
-              Another Card Title
+              Change Password
             </Typography>
-            <Typography variant="body2" color="text.secondary">
-              This is some content for another card. You can add more details here.
-            </Typography>
+            <TextField
+              label="Old Password"
+              type="password"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+              sx={{ width: '100%', mb: 2 }}
+            />
+            <TextField
+              label="New Password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              sx={{ width: '100%', mb: 2 }}
+            />
+            <TextField
+              label="Confirm New Password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              sx={{ width: '100%', mb: 2 }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={changePassword}
+            >
+              Change Password
+            </Button>
           </CardContent>
         </Card>
 
@@ -127,7 +217,7 @@ const More = () => {
 
       {/* Toast Container with Centered Position */}
       <ToastContainer
-        position="top-center" // Use string instead of `toast.POSITION.TOP_CENTER`
+        position="top-center"
         autoClose={5000}
         hideProgressBar={false}
         newestOnTop={false}

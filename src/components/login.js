@@ -1,6 +1,7 @@
 // import React, { useState, useRef, useEffect } from 'react';
 // import axios from 'axios';
 // import { useNavigate } from 'react-router-dom';
+// import { Typography, Button } from '@mui/material';
 // import './Login.css'; // Import the updated CSS file
 
 // const Login = () => {
@@ -30,23 +31,25 @@
 //   const handleSubmit = async (e) => {
 //     e.preventDefault();
 //     try {
+//       // Replace the URL with your deployed server's IPv4 address
 //       const response = await axios.post('http://localhost:5000/api/authRoutes/login', formData);
 //       setMessage(response.data.message);
 //       localStorage.setItem('token', response.data.token);
 //       navigate('/Dashboard');
 //     } catch (error) {
+//       console.error('Login error:', error);
 //       setMessage(error.response?.data?.message || 'Something went wrong!');
 //     }
 //   };
 
-//   // const handleSignupClick = () => {
-//   //   navigate('/signup');
-//   // };
+//   const handleSignupClick = () => {
+//     navigate('/signup');
+//   };
 
 //   return (
 //     <div className="login-container">
 //       <div className="login-box">
-//         <h2>Login</h2>
+//         <Typography variant="h2">Login</Typography>
 //         <form onSubmit={handleSubmit}>
 //           <input
 //             type="email"
@@ -65,10 +68,13 @@
 //             onChange={handleChange}
 //             required
 //           />
-//           <button type="submit" className="login-button">Login</button>
+//           <Button type="submit" variant="contained" color="primary" className="login-button">Login</Button>
 //         </form>
-//         {message && <p>{message}</p>}
-//         {/* <button onClick={handleSignupClick} className="signup-button">Signup</button> */}
+//         {message && <Typography>{message}</Typography>}
+//         <Button onClick={handleSignupClick} variant="outlined" className="signup-button">Signup</Button>
+//         <Typography variant="caption" align="center" style={{ marginTop: '20px' }}>
+//           Made by Vishwaraj (Junior Assistant) Haldarwas SD
+//         </Typography>
 //       </div>
 //     </div>
 //   );
@@ -76,9 +82,12 @@
 
 // export default Login;
 
+
+
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { Typography, Button } from '@mui/material';
 import './Login.css'; // Import the updated CSS file
 
 const Login = () => {
@@ -109,7 +118,7 @@ const Login = () => {
     e.preventDefault();
     try {
       // Replace the URL with your deployed server's IPv4 address
-      const response = await axios.post('http://123.456.78.90/api/authRoutes/login', formData);
+      const response = await axios.post('https://misgppp-vishwarajs-projects.vercel.app/api/authRoutes/login', formData);
       setMessage(response.data.message);
       localStorage.setItem('token', response.data.token);
       navigate('/Dashboard');
@@ -126,7 +135,7 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-box">
-        <h2>Login</h2>
+        <Typography variant="h2">Login</Typography>
         <form onSubmit={handleSubmit}>
           <input
             type="email"
@@ -145,10 +154,13 @@ const Login = () => {
             onChange={handleChange}
             required
           />
-          <button type="submit" className="login-button">Login</button>
+          <Button type="submit" variant="contained" color="primary" className="login-button">Login</Button>
         </form>
-        {message && <p>{message}</p>}
-        <button onClick={handleSignupClick} className="signup-button">Signup</button>
+        {message && <Typography>{message}</Typography>}
+        <Button onClick={handleSignupClick} variant="outlined" className="signup-button">Signup</Button>
+        <Typography variant="caption" align="center" style={{ marginTop: '20px' }}>
+          Made by Vishwaraj (Junior Assistant) Haldarwas SD
+        </Typography>
       </div>
     </div>
   );

@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
@@ -11,7 +8,6 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import Toolbar from '@mui/material/Toolbar';
@@ -177,24 +173,53 @@ function formatDate(dateString) {
 function EnhancedTable() {
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('rcDate');
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('/api/formRoutes') // Adjust the API endpoint as needed
-      .then(response => {
-        const filteredRows = response.data.filter(row => 
-          row.srStatus === "OPEN" && row.category === "Residential" && row.srType === "Change of Load for LT Reduction" && (row.fqMrDate !== null && row.fqMrDate !== undefined && row.fqMrDate.trim() !== "")
+    const token = localStorage.getItem('token');
+
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/formRoutes/user', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data.userId;
+      } catch (error) {
+        console.error('Error fetching user data:', error.response ? error.response.data : error.message);
+        return null;
+      }
+    };
+
+    const fetchData = async (userId) => {
+      try {
+        if (!userId) return;
+
+        const response = await axios.get(`/api/formRoutes/${userId}`);
+        const filteredRows = response.data.filter(row =>
+          row.srStatus === "OPEN" &&
+          row.category === "Residential" &&
+          row.srType === "Change of Load for LT Reduction" &&
+          row.fqMrDate !== null &&
+          row.fqMrDate !== undefined &&
+          row.fqMrDate.trim() !== ""
         );
         setRows(filteredRows);
+      } catch (error) {
+        console.error('There was an error fetching the data!', error);
+      } finally {
         setLoading(false);
-      })
-      .catch(error => {
-        console.error("There was an error fetching the data!", error);
-        setLoading(false);
-      });
+      }
+    };
+
+    const fetchAllData = async () => {
+      const userId = await fetchUserData();
+      await fetchData(userId);
+    };
+
+    fetchAllData();
   }, []);
 
   const handleRequestSort = (event, property) => {
@@ -203,15 +228,7 @@ function EnhancedTable() {
     setOrderBy(property);
   };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
+ 
   const handleExport = () => {
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
@@ -219,7 +236,6 @@ function EnhancedTable() {
     XLSX.writeFile(wb, "RgprLrPP.xlsx");
   };
 
-  const emptyRows = Math.max(0, (1 + page) * rowsPerPage - rows.length);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -258,7 +274,6 @@ function EnhancedTable() {
                   }
                   return 0;
                 })
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => (
                   <TableRow
                     hover
@@ -302,23 +317,9 @@ function EnhancedTable() {
                     <TableCell align="center">{row.remark}</TableCell>
                   </TableRow>
                 ))}
-              {emptyRows > 0 && (
-                <TableRow style={{ height: 53 * emptyRows }}>
-                  <TableCell colSpan={headCells.length} />
-                </TableRow>
-              )}
             </TableBody>
           </Table>
         </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[10, 20, 30]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
         <Box sx={{ display: 'flex', justifyContent: 'flex-start', p: 2 }}>
           <Tooltip title="Export to Excel">
             <IconButton onClick={handleExport}>

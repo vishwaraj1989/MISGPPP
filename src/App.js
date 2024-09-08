@@ -1,8 +1,7 @@
+ // src/App.js
 
-
-// src/App.js
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import TmpGP from './pages/GP/TmpGP';
 import SingleQMSIGP from './pages/GP/SingleQMSIGP';
@@ -34,7 +33,6 @@ import GlpSLLrGP from './pages/GP/GlpSLLrGP';
 import GlpSLGP from './pages/GP/GlpSLGP';
 import GlpSLPP from './pages/PP/GlpSLPP';
 
-
 import AgLeGP from './pages/GP/AgLeGP'; 
 import AgLrGP from './pages/GP/AgLrGP'; 
 import RgprLePP from './pages/PP/RgprLePP';
@@ -50,17 +48,16 @@ import AgLePP from './pages/PP/AgLePP';
 import AgLrPP from './pages/PP/AgLrPP';
 import More from './components/More'; 
 import Dashboard from './components/Dashboard'
-import Signup from './components/Signup'; // Import the Signup component
+import Signup from './components/Signup';
 import Login from './components/login';
 
 function App() {
   return (
     <Router>
       <Routes>
-      <Route path="/" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/home" element={<Home />} />
-
+        <Route path="/" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/home" element={<Home />} />
 
         <Route path="/RegisterForm/*" element={<RegisterForm />} />
         <Route path="/tmp-gp/*" element={<TmpGP />} />
@@ -83,33 +80,31 @@ function App() {
         <Route path="/ag-gp/*" element={<AgGP />} />
         <Route path="/ag-pp/*" element={<AgPP />} />
         <Route path="/LeLr" element={<LeLr />} />
-        <Route path="/RGPR-LE-GP" element={<RgprLeGP />} />
-        <Route path="/RGPR-LR-GP" element={<RgprLrGP />} />
-        <Route path="/1Q-MSI-LE-GP" element={<SingleQMSILeGP />} />
-        <Route path="/1Q-MSI-LR-GP" element={<SingleQMSILrGP />} />
-        <Route path="/3Q-MSI-LE-GP" element={<ThreeQMSILeGP />} />
-        <Route path="/3Q-MSI-LR-GP" element={<ThreeQMSILrGP />} />
+        <Route path="/RGPR-LE-GP/*" element={<RgprLeGP />} />
+        <Route path="/RGPR-LR-GP/*" element={<RgprLrGP />} />
+        <Route path="/1Q-MSI-LE-GP/*" element={<SingleQMSILeGP />} />
+        <Route path="/1Q-MSI-LR-GP/*" element={<SingleQMSILrGP />} />
+        <Route path="/3Q-MSI-LE-GP/*" element={<ThreeQMSILeGP />} />
+        <Route path="/3Q-MSI-LR-GP/*" element={<ThreeQMSILrGP />} />
 
-        <Route path="/GLP&SL-LE-GP" element={<GlpSLLeGP />} />
-        <Route path="/GLP&SL-LR-GP" element={<GlpSLLrGP />} />
+        <Route path="/GLP&SL-LE-GP/*" element={<GlpSLLeGP />} />
+        <Route path="/GLP&SL-LR-GP/*" element={<GlpSLLrGP />} />
 
+        <Route path="/AG-LE-GP/*" element={<AgLeGP />} />
+        <Route path="/AG-LR-GP/*" element={<AgLrGP />} />
+        <Route path="/RGPR-LE-PP/*" element={<RgprLePP />} />
+        <Route path="/RGPR-LR-PP/*" element={<RgprLrPP />} />
+        <Route path="/1Q-MSI-LE-PP/*" element={<SingleQMSILePP />} />
+        <Route path="/1Q-MSI-LR-PP/*" element={<SingleQMSILrPP />} />
+        <Route path="/3Q-MSI-LE-PP/*" element={<ThreeQMSILePP />} />
+        <Route path="/3Q-MSI-LR-PP/*" element={<ThreeQMSILrPP />} />
+        <Route path="/GLP&SL-LE-PP/*" element={<GlpSLLePP />} />
+        <Route path="/GLP&SL-LR-PP/*" element={<GlpSLLrPP />} />
 
-        <Route path="/AG-LE-GP" element={<AgLeGP />} />
-        <Route path="/AG-LR-GP" element={<AgLrGP />} />
-        <Route path="/RGPR-LE-PP" element={<RgprLePP />} />
-        <Route path="/RGPR-LR-PP" element={<RgprLrPP />} />
-        <Route path="/1Q-MSI-LE-PP" element={<SingleQMSILePP />} />
-        <Route path="/1Q-MSI-LR-PP" element={<SingleQMSILrPP />} />
-        <Route path="/3Q-MSI-LE-PP" element={<ThreeQMSILePP />} />
-        <Route path="/3Q-MSI-LR-PP" element={<ThreeQMSILrPP />} />
-        <Route path="/GLP&SL-LE-PP" element={<GlpSLLePP />} />
-        <Route path="/GLP&SL-LR-PP" element={<GlpSLLrPP />} />
-
-        <Route path="/AG-LE-PP" element={<AgLePP />} />
-        <Route path="/AG-LR-PP" element={<AgLrPP />} />
+        <Route path="/AG-LE-PP/*" element={<AgLePP />} />
+        <Route path="/AG-LR-PP/*" element={<AgLrPP />} />
         <Route path="/more" element={<More />} />
         <Route path="/Dashboard" element={<Dashboard />} />
-
 
       </Routes>
     </Router>

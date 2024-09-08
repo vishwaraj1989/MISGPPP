@@ -1,7 +1,7 @@
-
 const mongoose = require('mongoose');
 
 const registerSchema = new mongoose.Schema({
+
   srNumber: {
     type: Number,
     required: true,
@@ -127,6 +127,10 @@ const registerSchema = new mongoose.Schema({
     type: Date,
     required: false,
   },
+  dateOfRelease: { 
+    type: Date,
+    required: false,
+  },
   consumerNumber: {
     type: Number,
     required: false,
@@ -166,6 +170,12 @@ const registerSchema = new mongoose.Schema({
   workOrderDate: {
     type: Date,
     required: false,
+  },
+  
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
   },
 });
 

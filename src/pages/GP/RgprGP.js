@@ -1,25 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import PropTypes from 'prop-types';
-import { alpha } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import TableSortLabel from '@mui/material/TableSortLabel';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
+import { Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel,  Toolbar, IconButton, Tooltip } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { visuallyHidden } from '@mui/utils';
-import { Routes, Route } from 'react-router-dom';
+import { alpha } from '@mui/material/styles';
+import PropTypes from 'prop-types';
 import * as XLSX from 'xlsx';
 import Sidenav from '../../components/Sidenav';
 import Navbar from '../../components/Navbar';
@@ -27,6 +11,7 @@ import ThreeQMSIGP from './ThreeQMSIGP';
 import SingleQMSIGP from './SingleQMSIGP';
 import TmpGP from './TmpGP';
 import Settings from './Settings';
+import { Routes, Route } from 'react-router-dom';
 
 // Define headCells for table headers
 const headCells = [
@@ -58,7 +43,7 @@ const headCells = [
   { id: 'remark', numeric: false, disablePadding: false, label: 'Remark' },
 ];
 
-function EnhancedTableHead(props) {
+const EnhancedTableHead = (props) => {
   const { order, orderBy, onRequestSort } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
@@ -82,7 +67,7 @@ function EnhancedTableHead(props) {
             >
               {headCell.label}
               {orderBy === headCell.id ? (
-                <Box component="span" sx={visuallyHidden}>
+                <Box component="span" sx={{ visibility: 'hidden' }}>
                   {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
                 </Box>
               ) : null}
@@ -92,7 +77,7 @@ function EnhancedTableHead(props) {
       </TableRow>
     </TableHead>
   );
-}
+};
 
 EnhancedTableHead.propTypes = {
   onRequestSort: PropTypes.func.isRequired,
@@ -100,8 +85,8 @@ EnhancedTableHead.propTypes = {
   orderBy: PropTypes.string.isRequired,
 };
 
-function EnhancedTableToolbar(props) {
-  const { numSelected } = props;
+const EnhancedTableToolbar = (props) => {
+  const { numSelected, onExport } = props;
 
   return (
     <Toolbar
@@ -130,6 +115,7 @@ function EnhancedTableToolbar(props) {
           id="tableTitle"
           component="div"
         >
+          Data Table
         </Typography>
       )}
 
@@ -139,45 +125,81 @@ function EnhancedTableToolbar(props) {
             <DeleteIcon />
           </IconButton>
         </Tooltip>
-      ) : null /* Removed filter icon */}
+      ) : (
+        <Tooltip title="Export to Excel">
+          <IconButton onClick={onExport}>
+            <Typography variant="body2">Export</Typography>
+          </IconButton>
+        </Tooltip>
+      )}
     </Toolbar>
   );
-}
+};
 
 EnhancedTableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
+  onExport: PropTypes.func.isRequired,
 };
 
-function parseDate(dateString) {
+const parseDate = (dateString) => {
   const [day, month, year] = dateString.split('-');
   return new Date(year, month - 1, day);
-}
+};
 
-function formatDate(dateString) {
+const formatDate = (dateString) => {
   if (!dateString) return '';
   const date = new Date(dateString);
   const day = date.getDate().toString().padStart(2, '0');
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const year = date.getFullYear();
   return `${day}-${month}-${year}`;
-}
+};
 
-function EnhancedTable() {
+const EnhancedTable = () => {
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('rcDate');
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
-    axios.get('/api/formRoutes')
-      .then(response => {
-        const filteredRows = response.data.filter(row => row.srStatus === "OPEN" && row.category === "Residential" && row.srType === "New Connection LT" && (row.fqMrDate === null || row.fqMrDate === undefined || row.fqMrDate.trim() === ""));
+    const token = localStorage.getItem('token');
+
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/formRoutes/user', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data.userId; // Return userId for chaining
+      } catch (error) {
+        console.error('Error fetching user data:', error.response ? error.response.data : error.message);
+        return null;
+      }
+    };
+
+    const fetchData = async (userId) => {
+      try {
+        if (!userId) return; // If no userId, exit early
+
+        const response = await axios.get(`/api/formRoutes/${userId}`);
+        const filteredRows = response.data.filter(row =>
+          row.srStatus === "OPEN" &&
+          row.category === "Residential" &&
+          row.srType === "New Connection LT" &&
+          (!row.fqMrDate || row.fqMrDate.trim() === "")
+        );
         setRows(filteredRows);
-      })
-      .catch(error => {
-        console.error("There was an error fetching the data!", error);
-      });
+      } catch (error) {
+        console.error("Error fetching data", error);
+      }
+    };
+
+    const initFetch = async () => {
+      const userId = await fetchUserData(); // Fetch user data first
+      await fetchData(userId); // Fetch data using the userId
+    };
+
+    initFetch();
   }, []);
 
   const handleRequestSort = (event, property) => {
@@ -186,16 +208,6 @@ function EnhancedTable() {
     setOrderBy(property);
   };
 
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   const sortedRows = rows
     .sort((a, b) => {
@@ -228,46 +240,19 @@ function EnhancedTable() {
       <Paper sx={{ width: '100%', mb: 2 }}>
         <EnhancedTableToolbar numSelected={0} onExport={handleExport} />
         <TableContainer>
-          <Table
-            sx={{ minWidth: 750 }}
-            aria-labelledby="tableTitle"
-            size="medium"
-          >
-            <EnhancedTableHead
-              order={order}
-              orderBy={orderBy}
-              onRequestSort={handleRequestSort}
-              rowCount={rows.length}
-            />
+          <Table sx={{ minWidth: 750 }} aria-labelledby="tableTitle" size="medium">
+            <EnhancedTableHead order={order} orderBy={orderBy} onRequestSort={handleRequestSort} rowCount={rows.length} />
             <TableBody>
-              {sortedRows
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => (
-                  <TableRow
-                    hover
-                    role="checkbox"
-                    tabIndex={-1}
-                    key={row.srNumber}
-                  >
-                    {headCells.map((headCell) => (
-                      <TableCell
-                        key={headCell.id}
-                        align="center"
-                      >
-                        {headCell.id.includes('Date') ? formatDate(row[headCell.id]) : row[headCell.id]}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              {emptyRows > 0 && (
-                <TableRow
-                  style={{
-                    height: 53 * emptyRows,
-                  }}
-                >
-                  <TableCell colSpan={headCells.length} />
+              {sortedRows.map((row, index) => (
+                <TableRow hover role="checkbox" tabIndex={-1} key={row.srNumber}>
+                  {headCells.map((headCell) => (
+                    <TableCell key={headCell.id} align="center">
+                      {headCell.id.includes('Date') ? formatDate(row[headCell.id]) : row[headCell.id]}
+                    </TableCell>
+                  ))}
                 </TableRow>
-              )}
+              ))}
+
             </TableBody>
           </Table>
         </TableContainer>
@@ -278,26 +263,17 @@ function EnhancedTable() {
             </IconButton>
           </Tooltip>
         </Box>
-        <TablePagination
-          rowsPerPageOptions={[10, 20, 30]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
+        </Paper>
     </Box>
   );
-}
+};
 
 export default function RgprGP() {
   return (
     <Box sx={{ display: 'flex' }}>
       <Sidenav />
       <Box sx={{ flexGrow: 1 }}>
-        <Box sx={{ mt: 2 }}> {/* Adjusted top margin for Navbar */}
+        <Box sx={{ mt: 2 }}>
           <Navbar />
         </Box>
         <Routes>
@@ -311,6 +287,3 @@ export default function RgprGP() {
     </Box>
   );
 }
-
-
-

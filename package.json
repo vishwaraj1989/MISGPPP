@@ -19,6 +19,7 @@
     "axios": "^1.7.2",
     "body-parser": "^1.20.2",
     "chart.js": "^4.4.4",
+    "concurrently": "^9.0.0",
     "cors": "^2.8.5",
     "dayjs": "^1.11.12",
     "dotenv": "^16.4.5",
@@ -41,12 +42,15 @@
     "xlsx": "^0.18.5",
     "zustand": "^4.5.4"
   },
+  
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
+
+
   "eslintConfig": {
     "extends": [
       "react-app",

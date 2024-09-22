@@ -51,32 +51,32 @@ const Dashboard = () => {
         };
 
         setData(sortByTotalDaysDesc(
-          response.data.filter(entry => entry.fqDate === null && entry.fqMrDate === null && entry.category !== 'Agricultural'),
+          response.data.filter(entry => entry.fqDate === null && entry.fqMrDate === null && entry.category !== 'Agricultural' && entry.srStatus !== 'CANCELLED BY USER' && entry.srStatus !== 'NOT PAID CANCELLED BY USER' && entry.srStatus !== 'PAID CANCELLED BY USER'),
           'rcDate'
         ));
-
+      
         setTmnData(sortByTotalDaysDesc(
-          response.data.filter(entry => entry.fqMrDate !== null && entry.surveyCategory === 'A' && entry.tmnDate === null && entry.trDate === null),
+          response.data.filter(entry => entry.fqMrDate !== null && entry.surveyCategory === 'A' && entry.tmnDate === null && entry.trDate === null && entry.category !== 'Agricultural' && entry.srStatus !== 'CANCELLED BY USER' && entry.srStatus !== 'NOT PAID CANCELLED BY USER' && entry.srStatus !== 'PAID CANCELLED BY USER'),
           'fqMrDate'
         ));
 
         setTmnDataCategoryB(sortByTotalDaysDesc(
-          response.data.filter(entry => entry.surveyCategory === 'B' && entry.fqMrDate !== null && entry.tmnDate === null && moment().diff(moment(entry.fqMrDate), 'days') > 15),
+          response.data.filter(entry => entry.surveyCategory === 'B' && entry.fqMrDate !== null && entry.tmnDate === null && entry.category !== 'Agricultural' && entry.srStatus !== 'CANCELLED BY USER' && entry.srStatus !== 'NOT PAID CANCELLED BY USER' && entry.srStatus !== 'PAID CANCELLED BY USER' && moment().diff(moment(entry.fqMrDate), 'days') > 15),
           'fqMrDate'
         ));
 
         setTmnDataCategoryC(sortByTotalDaysDesc(
-          response.data.filter(entry => entry.surveyCategory === 'C' && entry.fqMrDate !== null && entry.tmnDate === null && moment().diff(moment(entry.fqMrDate), 'days') > 20),
+          response.data.filter(entry => entry.surveyCategory === 'C' && entry.fqMrDate !== null && entry.tmnDate === null && entry.category !== 'Agricultural' && entry.srStatus !== 'CANCELLED BY USER' && entry.srStatus !== 'NOT PAID CANCELLED BY USER' && entry.srStatus !== 'PAID CANCELLED BY USER' &&  moment().diff(moment(entry.fqMrDate), 'days') > 20),
           'fqMrDate'
         ));
 
         setTmnDataCategoryD(sortByTotalDaysDesc(
-          response.data.filter(entry => entry.surveyCategory === 'D' && entry.fqMrDate !== null && entry.tmnDate === null && moment().diff(moment(entry.fqMrDate), 'days') > 30),
+          response.data.filter(entry => entry.surveyCategory === 'D' && entry.fqMrDate !== null && entry.tmnDate === null && entry.category !== 'Agricultural' && entry.srStatus !== 'CANCELLED BY USER' && entry.srStatus !== 'NOT PAID CANCELLED BY USER' && entry.srStatus !== 'PAID CANCELLED BY USER' && moment().diff(moment(entry.fqMrDate), 'days') > 30),
           'fqMrDate'
         ));
 
         setWorkOrderPendingData(sortByTotalDaysDesc(
-          response.data.filter(entry => entry.fqMrDate !== null && ['B', 'C', 'D'].includes(entry.surveyCategory)),
+          response.data.filter(entry => entry.category !== 'Agricultural' && entry.srStatus !== 'CANCELLED BY USER' && entry.srStatus !== 'NOT PAID CANCELLED BY USER' && entry.srStatus !== 'PAID CANCELLED BY USER' && entry.fqMrDate !== null && ['B', 'C', 'D'].includes(entry.surveyCategory)),
           'fqMrDate'
         ));
 
@@ -272,7 +272,6 @@ const Dashboard = () => {
                   <TableCell sx={{ fontWeight: 'bold' }}>Category</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Tarrif</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Applicant Name</TableCell>
-                  <TableCell sx={{ fontWeight: 'bold' }}>Category</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>FQ MR Date</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Survey Category</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Total Days</TableCell>
@@ -562,6 +561,7 @@ const Dashboard = () => {
               <TableHead>
                 <TableRow>
                 <TableCell sx={{ fontWeight: 'bold' }}>SR Number</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>Consumer Number</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Category</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Tarrif</TableCell>
                 <TableCell sx={{ fontWeight: 'bold' }}>Phase</TableCell>
@@ -574,6 +574,7 @@ const Dashboard = () => {
                 {firstUnitPendingData.map((entry, index) => (
                   <TableRow key={index}>
                     <TableCell>{entry.srNumber}</TableCell>
+                    <TableCell>{entry.consumerNumber}</TableCell>
                     <TableCell>{entry.category}</TableCell>
                     <TableCell>{entry.tariff}</TableCell>
                     <TableCell>{entry.phase}</TableCell>

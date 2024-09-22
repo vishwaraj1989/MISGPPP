@@ -343,15 +343,30 @@ const SRDetailsLookup = () => {
       return;
     }
 
-    if (srDetails.srStatus === 'CLOSED') {
-      const requiredFields = ['surveyCategory', 'dateOfSurvey', 'fqSd', 'fqAmountTotal', 'fqMrNo', 'trMrNumber', 'trDate'];
-      const missingFields = requiredFields.filter(field => !srDetails[field]);
+    // if (srDetails.srStatus === 'CLOSED') {
+    //   const requiredFields = ['surveyCategory', 'dateOfSurvey', 'fqSd', 'fqAmountTotal', 'fqMrNo', 'trMrNumber', 'trDate'];
+    //   const missingFields = requiredFields.filter(field => !srDetails[field]);
+  
+    //   if (missingFields.length > 0) {
+    //     toast.error(`Please fill in the following fields: ${missingFields.join(', ')}`);
+    //     return;
+    //   }
+    // }
 
-      if (missingFields.length > 0) {
-        toast.error(`Please fill in the following fields: ${missingFields.join(', ')}`);
-        return;
-      }
+    let requiredFields = [];
+    if (srDetails.srStatus === 'CLOSED') {
+      requiredFields = ['surveyCategory', 'dateOfSurvey', 'fqSd', 'fqAmountTotal', 'fqMrNo', 'trMrNumber', 'trDate'];
+    } else if (srDetails.srStatus === 'UNCONNECTED RELEASED') {
+      requiredFields = ['surveyCategory', 'dateOfSurvey', 'fqSd', 'fqAmountTotal', 'fqMrNo', 'consumerNumber', 'dateOfRelease'];
     }
+    
+    const missingFields = requiredFields.filter(field => !srDetails[field]);
+    
+    if (missingFields.length > 0) {
+      toast.error(`Please fill in the following fields: ${missingFields.join(', ')}`);
+      return;
+    }
+    
 
     setSaving(true);
     try {
@@ -454,6 +469,10 @@ const SRDetailsLookup = () => {
                           >
                             <MenuItem value='OPEN'>Open</MenuItem>
                             <MenuItem value='CLOSED'>Closed</MenuItem>
+                            <MenuItem value='CANCELLED BY USER'>Cancelled By User</MenuItem>
+                            <MenuItem value='NOT PAID CANCELLED BY USER'>Not Paid Cancelled By User</MenuItem>
+                            <MenuItem value='PAID CANCELLED BY USER'>Paid Cancelled By User</MenuItem>
+                            <MenuItem value='UNCONNECTED RELEASED'>Unconnected Released</MenuItem>
                           </Select>
                         </FormControl>
                       </Grid>

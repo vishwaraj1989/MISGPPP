@@ -41,14 +41,16 @@
 
 
 // ============== Single Port Run =====================================================================================================
+
+
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const morgan = require('morgan');
 const path = require('path');
-const formRoutes = require('./api/formRoutes'); // Ensure correct path
-const authRoutes = require('./api/authRoutes'); // Ensure correct path
-const connectDB = require('./connectDB'); // Ensure correct path
+const formRoutes = require('./api/formRoutes');
+const authRoutes = require('./api/authRoutes');
+const connectDB = require('./connectDB');
 
 // Load environment variables
 dotenv.config();
@@ -58,8 +60,15 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
-app.use(cors());
 app.use(morgan('dev'));
+
+// Configure CORS to allow requests only from your Vercel deployment
+app.use(cors({
+  origin: 'https://misgppp.vercel.app', // Allow only your frontend origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed methods
+  allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers
+  credentials: true, // Allow cookies and other credentials if needed
+}));
 
 // Connect to MongoDB
 connectDB();
